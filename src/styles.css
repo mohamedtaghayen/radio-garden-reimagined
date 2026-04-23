@@ -1,6 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -63,38 +64,44 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Radio Garden inspired electric blue + neon green */
+  --background: oklch(0.32 0.31 268);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.28 0.28 268);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.26 0.26 268);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.86 0.24 145);
+  --primary-foreground: oklch(0.18 0.18 268);
+  --secondary: oklch(0.38 0.28 268);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.4 0.22 268);
+  --muted-foreground: oklch(0.85 0.05 268);
+  --accent: oklch(0.86 0.24 145);
+  --accent-foreground: oklch(0.18 0.18 268);
+  --destructive: oklch(0.65 0.25 25);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --border: oklch(0.5 0.25 268 / 60%);
+  --input: oklch(0.45 0.25 268 / 80%);
+  --ring: oklch(0.86 0.24 145);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --sidebar: oklch(0.26 0.26 268);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.86 0.24 145);
+  --sidebar-primary-foreground: oklch(0.18 0.18 268);
+  --sidebar-accent: oklch(0.38 0.28 268);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.5 0.25 268 / 60%);
+  --sidebar-ring: oklch(0.86 0.24 145);
+
+  --neon: oklch(0.86 0.24 145);
+  --rg-blue: oklch(0.32 0.31 268);
+  --rg-blue-deep: oklch(0.22 0.28 268);
+  --shadow-neon: 0 0 24px oklch(0.86 0.24 145 / 0.55);
 }
 
 .dark {
@@ -140,5 +147,53 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
   }
+
+  /* Leaflet overrides for the Radio Garden look */
+  .leaflet-container {
+    background: var(--rg-blue) !important;
+    font-family: inherit;
+    outline: none;
+  }
+  .leaflet-control-attribution {
+    background: transparent !important;
+    color: oklch(0.98 0 0 / 0.5) !important;
+    font-size: 10px;
+  }
+  .leaflet-control-attribution a {
+    color: oklch(0.98 0 0 / 0.7) !important;
+  }
+  .leaflet-tile-pane {
+    filter: hue-rotate(200deg) saturate(1.4) brightness(0.6) contrast(1.1);
+    opacity: 0.55;
+    mix-blend-mode: screen;
+  }
+  .leaflet-control-zoom a {
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+    border-color: var(--border) !important;
+  }
+  .station-marker {
+    width: 10px; height: 10px;
+    border-radius: 9999px;
+    background: oklch(0.98 0 0 / 0.85);
+    box-shadow: 0 0 0 2px oklch(0.32 0.31 268), 0 0 12px oklch(0.98 0 0 / 0.6);
+    transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+    cursor: pointer;
+  }
+  .station-marker:hover { transform: scale(1.6); background: var(--neon); box-shadow: var(--shadow-neon); }
+  .station-marker.active {
+    background: var(--neon);
+    box-shadow: var(--shadow-neon), 0 0 0 2px var(--rg-blue);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1.4); }
+    50% { transform: scale(1.9); }
+  }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: oklch(0.98 0 0 / 0.2); border-radius: 9999px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 }
