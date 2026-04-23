@@ -129,7 +129,10 @@ export const searchStations = createServerFn({ method: "GET" })
     });
   });
 
-/** Public stream URL — the audio element fetches this directly (302 → upstream). */
+/**
+ * Same-origin stream URL. We proxy through our own server route so the browser
+ * isn't blocked by Cloudflare/CORS on the upstream audio.
+ */
 export function streamUrl(channelId: string): string {
-  return `https://radio.garden/api/ara/content/listen/${channelId}/channel.mp3`;
+  return `/api/stream/${channelId}`;
 }
