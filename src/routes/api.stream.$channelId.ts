@@ -29,17 +29,30 @@ export const Route = createFileRoute("/api/stream/$channelId")({
         };
         if (range) headers["Range"] = range;
 
-        let res: Response;
-        try {
-          res = await fetch(upstreamUrl, {
-            method: "GET",
-            headers,
-            redirect: "follow",
-          });
-        } catch {
-          return new Response("Upstream unreachable", { status: 502 });
+        // Manually follow redirects so we can carry the right headers and
+        // surface the real upstream stream (the Worker fetch sometimes
+        // exposes the 302 even with redirect: "follow").
+        let currentUrl = upstreamUrl;
+        let res: Response | null = null;
+        for (let i = 0; i < 5; i++) {
+          try {
+            res = await fetch(currentUrl, {
+              method: "GET",
+              headers,
+              redirect: "manual",
+            });
+          } catch {
+            return new Response("Upstream unreachable", { status: 502 });
+          }
+          if (res.status >= 300 && res.status < 400) {
+            const loc = res.headers.get("location");
+            if (!loc) break;
+            currentUrl = new URL(loc, currentUrl).toString();
+            continue;
+          }
+          break;
         }
-
+        if (!res) return new Response("No response", { status: 502 });
         if (!res.ok && res.status !== 206) {
           return new Response(`Upstream ${res.status}`, { status: 502 });
         }
