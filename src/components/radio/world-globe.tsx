@@ -69,22 +69,19 @@ export function WorldGlobe({
     globeRef.current.pointOfView({ lat, lng, altitude: 1.4 }, 1400);
   }, [flyTo]);
 
-  // Resize observer
+  // Track size for the globe canvas
+  const sizeRef = useRef({ w: 800, h: 600 });
   useEffect(() => {
     const el = containerRef.current;
-    if (!el || !globeRef.current) return;
+    if (!el) return;
     const ro = new ResizeObserver(() => {
-      const g = globeRef.current;
-      if (!g) return;
-      g.width(el.clientWidth);
-      g.height(el.clientHeight);
+      sizeRef.current = { w: el.clientWidth, h: el.clientHeight };
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-
-  const width = containerRef.current?.clientWidth ?? 800;
-  const height = containerRef.current?.clientHeight ?? 600;
+  const width = containerRef.current?.clientWidth ?? sizeRef.current.w;
+  const height = containerRef.current?.clientHeight ?? sizeRef.current.h;
 
   return (
     <div ref={containerRef} className="absolute inset-0">
