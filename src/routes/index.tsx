@@ -6,9 +6,11 @@ import { SidePanel } from "@/components/radio/side-panel";
 import { usePlayer } from "@/components/radio/use-radio-player";
 import { Loader2 } from "lucide-react";
 
-// Leaflet must only run in the browser
-const WorldMap = lazy(() =>
-  import("@/components/radio/world-map").then((m) => ({ default: m.WorldMap })),
+// Three.js must only run in the browser
+const WorldGlobe = lazy(() =>
+  import("@/components/radio/world-globe").then((m) => ({
+    default: m.WorldGlobe,
+  })),
 );
 
 export const Route = createFileRoute("/")({
@@ -56,11 +58,11 @@ function RadioGardenApp() {
       {/* Glow background */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_120%,oklch(0.45_0.31_268)_0%,oklch(0.22_0.28_268)_60%,oklch(0.18_0.2_268)_100%)]" />
 
-      {/* Map */}
+      {/* 3D Globe */}
       <div className="absolute inset-0">
         {mounted ? (
           <Suspense fallback={<MapFallback />}>
-            <WorldMap
+            <WorldGlobe
               places={places}
               selectedPlaceId={selected?.id ?? null}
               onSelectPlace={handleSelect}
