@@ -54,15 +54,17 @@ export const usePlayer = create<PlayerStore>((set, get) => ({
     if (get().audio) return;
     const audio = new Audio();
     audio.preload = "none";
-    audio.crossOrigin = "anonymous";
+    // Same-origin proxy → no CORS attribute needed; setting it can cause
+    // some streams to silently fail.
     audio.addEventListener("playing", () =>
       set({ isPlaying: true, isLoading: false }),
     );
     audio.addEventListener("waiting", () => set({ isLoading: true }));
     audio.addEventListener("pause", () => set({ isPlaying: false }));
-    audio.addEventListener("error", () =>
-      set({ isLoading: false, isPlaying: false }),
-    );
+    audio.addEventListener("error", () => {
+      console.error("Audio playback error", audio.error);
+      set({ isLoading: false, isPlaying: false });
+    });
     set({ audio, favorites: loadFavorites() });
   },
 
@@ -74,13 +76,24 @@ export const usePlayer = create<PlayerStore>((set, get) => ({
   play: (channel, queue) => {
     const { audio } = get();
     if (!audio) return;
-    set({
-      current: channel,
-      queue: queue ?? get().queue.length ? get().queue : [channel],
-      isLoading: true,
-    });
+    const existingQueue = get().queue;
+    const nextQueue = queue ?? (existingQueue.length ? existingQueue : [channel]);
+    set({ current: channel, queue: nextQueue, isLoading: true });
+    // Reset and load the new stream synchronously inside the user gesture.
+    try {
+      audio.pause();
+    } catch {
+      /* ignore */
+    }
     audio.src = streamUrl(channel.id);
-    audio.play().catch(() => set({ isLoading: false, isPlaying: false }));
+    audio.load();
+    const p = audio.play();
+    if (p && typeof p.catch === "function") {
+      p.catch((err) => {
+        console.error("audio.play() failed", err);
+        set({ isLoading: false, isPlaying: false });
+      });
+    }
   },
 
   toggle: () => {
