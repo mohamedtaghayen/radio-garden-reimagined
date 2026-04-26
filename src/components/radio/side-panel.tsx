@@ -10,6 +10,8 @@ import {
   Loader2,
   Play,
   MapPin,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   fetchPlaceChannels,
@@ -35,32 +37,46 @@ export function SidePanel({
   selectedPlace,
   onSelectPlace,
   onClearPlace,
+  collapsed,
+  onToggleCollapsed,
 }: {
   places: Place[];
   selectedPlace: Place | null;
   onSelectPlace: (place: Place) => void;
   onClearPlace: () => void;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }) {
   const [tab, setTab] = useState<Tab>("explore");
-  const [collapsed, setCollapsed] = useState(false);
 
   // When a place is picked, snap to Explore so the user sees its stations
   useEffect(() => {
     if (selectedPlace) {
       setTab("explore");
-      setCollapsed(false);
     }
   }, [selectedPlace]);
 
+  if (collapsed) {
+    return (
+      <button
+        onClick={onToggleCollapsed}
+        className="flex h-full w-10 flex-col items-center justify-center gap-2 border-r border-border bg-card text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground"
+        aria-label="Open stations panel"
+      >
+        <ChevronRight className="h-4 w-4" />
+        <span className="rotate-180 text-[10px] font-semibold uppercase tracking-[0.3em] [writing-mode:vertical-rl]">
+          Stations
+        </span>
+      </button>
+    );
+  }
+
   return (
-    <aside className="pointer-events-none absolute left-0 top-0 z-[1000] flex h-full w-full max-w-sm flex-col p-3 sm:p-4">
-      <div className="pointer-events-auto flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card/90 backdrop-blur shadow-[0_8px_40px_rgba(0,0,0,0.45)]">
-        <Header onCollapse={() => setCollapsed((c) => !c)} collapsed={collapsed} />
-        {!collapsed && (
-          <>
-            <Tabs tab={tab} onChange={setTab} />
-            <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
-              <AnimatePresence mode="wait">
+    <aside className="flex h-full w-80 shrink-0 flex-col border-r border-border bg-card shadow-[4px_0_24px_rgba(15,23,42,0.06)] sm:w-96">
+      <Header onCollapse={onToggleCollapsed} />
+      <Tabs tab={tab} onChange={setTab} />
+      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin">
+        <AnimatePresence mode="wait">
                 <motion.div
                   key={tab}
                   initial={{ opacity: 0, y: 6 }}
@@ -84,10 +100,7 @@ export function SidePanel({
                   {tab === "search" && <SearchTab />}
                   {tab === "settings" && <SettingsTab />}
                 </motion.div>
-              </AnimatePresence>
-            </div>
-          </>
-        )}
+        </AnimatePresence>
       </div>
     </aside>
   );
@@ -95,15 +108,13 @@ export function SidePanel({
 
 function Header({
   onCollapse,
-  collapsed,
 }: {
   onCollapse: () => void;
-  collapsed: boolean;
 }) {
   return (
     <div className="flex items-center justify-between border-b border-border px-4 py-3">
       <div className="flex items-center gap-2">
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground shadow-[0_0_16px_oklch(0.86_0.24_145/0.5)]">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground shadow-md">
           <Play className="ml-0.5 h-3.5 w-3.5" />
         </span>
         <div className="leading-tight">
@@ -116,9 +127,9 @@ function Header({
       <button
         onClick={onCollapse}
         className="rounded-full p-1.5 text-foreground/70 hover:bg-secondary hover:text-foreground"
-        aria-label={collapsed ? "Expand panel" : "Collapse panel"}
+        aria-label="Collapse panel"
       >
-        <X className={cn("h-4 w-4 transition-transform", collapsed && "rotate-45")} />
+        <ChevronLeft className="h-4 w-4" />
       </button>
     </div>
   );
