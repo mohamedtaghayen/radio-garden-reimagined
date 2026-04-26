@@ -42,6 +42,7 @@ function RadioGardenApp() {
   const [selected, setSelected] = useState<Place | null>(null);
   const [flyTo, setFlyTo] = useState<[number, number] | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [panelCollapsed, setPanelCollapsed] = useState(false);
 
   useEffect(() => {
     init();
@@ -54,12 +55,19 @@ function RadioGardenApp() {
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-background text-foreground">
-      {/* Glow background */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_120%,oklch(0.45_0.31_268)_0%,oklch(0.22_0.28_268)_60%,oklch(0.18_0.2_268)_100%)]" />
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
+      {/* Side panel — fixed, never overlaps the globe */}
+      <SidePanel
+        places={places}
+        selectedPlace={selected}
+        onSelectPlace={handleSelect}
+        onClearPlace={() => setSelected(null)}
+        collapsed={panelCollapsed}
+        onToggleCollapsed={() => setPanelCollapsed((c) => !c)}
+      />
 
-      {/* 3D Globe */}
-      <div className="absolute inset-0">
+      {/* Globe area */}
+      <div className="relative flex-1 overflow-hidden bg-[radial-gradient(circle_at_50%_30%,oklch(0.97_0.04_230)_0%,oklch(0.88_0.08_230)_60%,oklch(0.75_0.14_240)_100%)]">
         {mounted ? (
           <Suspense fallback={<MapFallback />}>
             <WorldGlobe
@@ -72,27 +80,19 @@ function RadioGardenApp() {
         ) : (
           <MapFallback />
         )}
-      </div>
 
-      {/* Side panel */}
-      <SidePanel
-        places={places}
-        selectedPlace={selected}
-        onSelectPlace={handleSelect}
-        onClearPlace={() => setSelected(null)}
-      />
-
-      {/* Bottom player */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1000] flex justify-center p-3 sm:p-4">
-        <div className="pointer-events-auto w-full max-w-md">
-          <PlayerBar />
+        {/* Brand mark */}
+        <div className="pointer-events-none absolute right-4 top-4 hidden text-right sm:block">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-foreground/60">
+            Live Radio · Worldwide
+          </div>
         </div>
-      </div>
 
-      {/* Footer brand mark */}
-      <div className="pointer-events-none absolute right-4 top-4 z-[999] hidden text-right sm:block">
-        <div className="text-[10px] uppercase tracking-[0.3em] text-foreground/60">
-          Live Radio · Worldwide
+        {/* Bottom player */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center p-3 sm:p-4">
+          <div className="pointer-events-auto w-full max-w-md">
+            <PlayerBar />
+          </div>
         </div>
       </div>
     </div>
